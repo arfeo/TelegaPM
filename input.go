@@ -22,11 +22,12 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 		hash          [32]byte = sha256.Sum256([]byte(masters[userID]))
 	)
 
+	// `whoami` command is always available
 	if message.Text != "/whoami" {
 
 		// If Bot lock is set up in config -- check the match
 		if len(config.Lock) > 0 {
-			if ok,_ := in_array(strconv.Itoa(userID), config.Lock); !ok {
+			if ok,_ := ValueInArray(strconv.Itoa(userID), config.Lock); !ok {
 				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "This Bot is locked for private use only."))
 
 				return
@@ -44,7 +45,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 				return
 			}
 
-			// If masters[] for the user is not defined, do `/start`
+			// If `masters[]` for the user is not defined, do `/start`
 			if _,me := masters[userID]; !me {
 				message.Text = "/start"
 			}
