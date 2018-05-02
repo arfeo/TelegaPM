@@ -6,5 +6,5 @@ _Development in progress. Not yet ready for use._
 
 ## Powered by
 
-+ [Golang bindings for the Telegram Bot API](https://github.com/go-telegram-bot-api/telegram-bot-api/)
-+ [Pure Go UUID implementation](https://github.com/nu7hatch/gouuid)
++ [Golang bindings for the Telegram Bot API](https://github.com/go-telegram-bot-api/telegram-bot-api/) (MIT)
++ [Pure Go UUID implementation](https://github.com/nu7hatch/gouuid) (MIT)
