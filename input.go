@@ -22,20 +22,32 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 		hash          [32]byte = sha256.Sum256([]byte(masters[userID]))
 	)
 
-	// First, check for storage existence & master password (if needed)
-	if message.Text != "/start" && message.Text != "/cancel" && message.Text != "/whoami" && current[userID].Command != "/start" && !current[userID].Continuous {
+	if message.Text != "/whoami" {
 
-		// If the storage does not exist, user should use `/start` command
-		if !FileExists(storageName) {
-			delete(masters, userID)
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Storage not found. Please, use /start command to set up Bot."))
+		// If Bot lock is set up in config -- check the match
+		if len(config.Lock) > 0 {
+			if ok,_ := in_array(strconv.Itoa(userID), config.Lock); !ok {
+				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "This Bot is locked for private use only."))
 
-			return
+				return
+			}
 		}
 
-		// If masters[] for the user is not defined, do `/start`
-		if _,me := masters[userID]; !me {
-			message.Text = "/start"
+		// Check for storage existence & master password (if needed)
+		if message.Text != "/start" && message.Text != "/cancel" && current[userID].Command != "/start" && !current[userID].Continuous {
+
+			// If the storage does not exist, user should use `/start` command
+			if !FileExists(storageName) {
+				delete(masters, userID)
+				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Storage not found. Please, use /start command to set up Bot."))
+
+				return
+			}
+
+			// If masters[] for the user is not defined, do `/start`
+			if _,me := masters[userID]; !me {
+				message.Text = "/start"
+			}
 		}
 	}
 

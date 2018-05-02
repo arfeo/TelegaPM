@@ -3,6 +3,7 @@ package main
 type Config struct {
 	Token         string		`json:"BOT_TOKEN"`
 	Extension     string		`json:"STORAGE_EXT"`
+	Lock          []string  `json:"LOCK_FOR_USER_IDS"`
 }
 
 type Storage struct {
