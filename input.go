@@ -24,7 +24,8 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	)
 
 	// First, check for storage existance & master password
-	if message.Text != "/start" && message.Text != "/cancel" && current[userID].Command != "/start" && !current[userID].Continuous {
+	if message.Text != "/start" && message.Text != "/cancel" && message.Text != "/whoami" &&
+			current[userID].Command != "/start" && !current[userID].Continuous {
 
 		// If the storage does not exist, user should use `/start` command
 		if !FileExists(storageName) {
@@ -113,6 +114,11 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 				StopContinuousInput(message)
 			}
+		}
+
+	case "/whoami" :
+		{
+			bot.Send(tgbotapi.NewMessage(message.Chat.ID, strconv.Itoa(userID)))
 		}
 
 	// Cancel current input process
