@@ -73,6 +73,7 @@ func GetStorageElementInfo(storage []Storage, num int) (string, string, bool) {
 
 	if num > 0 && num <= len(storage) {
 		result += "Title:\t<code>" + storage[num].Title + "</code>\n" + "Login:\t<code>" + storage[num].Login + "</code>\n" + "URL:\t<code>" + storage[num].Url + "</code>\n"
+
 		return result, storage[num].Pass, true
 	}
 

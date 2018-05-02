@@ -14,7 +14,6 @@ import (
  */
 
 func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-
 	var (
 		userID        int = message.From.ID
 		storage       []Storage
@@ -23,14 +22,14 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 		hash          [32]byte = sha256.Sum256([]byte(masters[userID]))
 	)
 
-	// First, check for storage existance & master password
-	if message.Text != "/start" && message.Text != "/cancel" && message.Text != "/whoami" &&
-			current[userID].Command != "/start" && !current[userID].Continuous {
+	// First, check for storage existence & master password (if needed)
+	if message.Text != "/start" && message.Text != "/cancel" && message.Text != "/whoami" && current[userID].Command != "/start" && !current[userID].Continuous {
 
 		// If the storage does not exist, user should use `/start` command
 		if !FileExists(storageName) {
 			delete(masters, userID)
 			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Storage not found. Please, use /start command to set up Bot."))
+
 			return
 		}
 
@@ -48,6 +47,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			// Prompt for master password if masters[] for the user not set
 			if _, ok := masters[userID]; ok {
 				output.Response = "Hello again."
+
 				StopContinuousInput(message)
 			} else {
 				output = StartContinuousInput(bot, message)
@@ -125,6 +125,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	case "/cancel" :
 		{
 			output.Response = "Canceled."
+
 			StopContinuousInput(message)
 		}
 
@@ -135,6 +136,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 				output = ContinuousInputProcessing(bot, message)
 			} else {
 				output.Response = "Unknown command."
+
 				StopContinuousInput(message)
 			}
 		}
@@ -142,7 +144,6 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	}
 
 	SendResponseMessage(bot, message, output)
-
 }
 
 /**
@@ -152,7 +153,6 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
  */
 
 func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) Output {
-
 	var (
 		userID        int = message.From.ID
 		storage       []Storage
@@ -177,11 +177,11 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					if !FileExists(storageName) {
 
 						// If storage for the user does not exist, print welcome message
-						inline := tgbotapi.NewMessage(message.Chat.ID, (`
-<code>TelegaPM</code> is an open source Telegram password management bot engine.
-
-WARNING: <code>TelegaPM</code> is designed as a self-hosted service. Since one's credentials is a sensitive data, please, consider this Bot as the engine demo, and <strong>DO NOT STORE</strong> anything private in it.
-						`))
+						inline := tgbotapi.NewMessage(message.Chat.ID,
+							"<code>TelegaPM</code> is an open source Telegram password management bot engine.\n\n" +
+							"WARNING: <code>TelegaPM</code> is designed as a self-hosted service. " +
+							"Since one's credentials is a sensitive data, please, consider this Bot as the engine demo, " +
+							"and <strong>DO NOT STORE</strong> anything private in it.")
 						inline.ParseMode = "HTML"
 						bot.Send(inline)
 
@@ -267,6 +267,7 @@ WARNING: <code>TelegaPM</code> is designed as a self-hosted service. Since one's
 					} else {
 						output.Response = "Canceled."
 					}
+
 					StopContinuousInput(message)
 				}
 			}
@@ -416,7 +417,6 @@ WARNING: <code>TelegaPM</code> is designed as a self-hosted service. Since one's
 	}
 
 	return output
-
 }
 
 /**
