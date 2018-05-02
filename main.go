@@ -9,22 +9,28 @@ import (
 func main() {
 
 	// Get Bot configuration
-	c, ok := ReadFromFile("bot.config")
-	if ok {
-		if len(c) > 0 {
-			err := json.Unmarshal([]byte(c), &config)
+	if !FileExists("bot.config") {
+		log.Fatalln("Fatal error: Cannot find configuration file")
+	}
 
-			if err != nil {
-				log.Println(err)
-			}
-		}
+	c, ok := ReadFromFile("bot.config")
+	if !ok {
+		log.Fatalln("Fatal error: Cannot read configuration file")
+	}
+
+	if err := json.Unmarshal([]byte(c), &config); err != nil {
+		log.Fatalln(err)
+	}
+
+	if config.Token == "" {
+		log.Fatalln("Fatal error: No BOT_TOKEN found in the configuration file")
 	}
 
 	// Create a new Bot instance
 	bot, err := tgbotapi.NewBotAPI(config.Token)
 
 	if err != nil {
-		log.Panic(err)
+		log.Fatalln(err)
 	}
 
 	bot.Debug = true
