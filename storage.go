@@ -7,8 +7,8 @@ import (
 )
 
 /**
- * Function tries to get storage data from encrypted content with the given hash;
- * returns storage date in case of success, otherwise returns void
+ * Function decodes and parses data from encrypted content with the given hash;
+ * returns storage data
  */
 func GetStorage(data []byte, hash [32]byte) (storage []Storage) {
 	if len(data) > 0 {
@@ -25,7 +25,7 @@ func GetStorage(data []byte, hash [32]byte) (storage []Storage) {
 
 /**
  * Function pushes a new element to storage with the given hash;
- * returns encrypted storage data
+ * returns encrypted content
  */
 func PushToStorage(storage []Storage, current Current, hash [32]byte) []byte {
 	storage = append(storage, current.Entry)
@@ -76,8 +76,8 @@ func GetStorageElementInfo(storage []Storage, num int) (string, string, bool) {
 
 /**
  * Function tries to remove an element from storage by the given number with the given hash;
- * returns encrypted storage date  as the first value and true as the second one in case of success;
- * otherwise returns empty string as the first value and false as the second one
+ * returns encrypted content as the first value and true as the second one in case of success;
+ * otherwise returns encrypted zero length string as the first value and false as the second one
  */
 func RemoveElementFromStorage(storage []Storage, num int, hash [32]byte) ([]byte, bool) {
 	if num > 0 && num <= len(storage) {
