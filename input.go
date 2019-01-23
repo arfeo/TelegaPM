@@ -9,9 +9,9 @@ import (
 )
 
 /**
- *  Send message to the Bot and handle an error (in case of)
+ *  Send message from the Bot and handle an error (in case of)
  */
-func SendMsgToBot(bot *tgbotapi.BotAPI, message *tgbotapi.Message, text string) {
+func BotSendMsg(bot *tgbotapi.BotAPI, message *tgbotapi.Message, text string) {
 	if _, err := bot.Send(tgbotapi.NewMessage(message.Chat.ID, text)); err != nil {
 		log.Println(err)
 	}
@@ -36,7 +36,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 		// If Bot lock is set up in config -- check the match
 		if len(config.Lock) > 0 {
 			if ok, _ := ValueInArray(strconv.Itoa(userID), config.Lock); !ok {
-				SendMsgToBot(bot, message, "This Bot is locked for private use only.")
+				BotSendMsg(bot, message, "This Bot is locked for private use only.")
 
 				return
 			}
@@ -49,7 +49,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			if !FileExists(storageName) {
 				delete(masters, userID)
 
-				SendMsgToBot(bot, message, "Storage not found. Please, use /start command to set up Bot.")
+				BotSendMsg(bot, message, "Storage not found. Please, use /start command to set up Bot.")
 
 				return
 			}
@@ -80,7 +80,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	// Drop the storage
 	case "/drop" :
 		{
-			SendMsgToBot(bot, message, "Drop the storage...")
+			BotSendMsg(bot, message, "Drop the storage...")
 
 			output = StartContinuousInput(bot, message)
 			break
@@ -89,7 +89,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	// Create a new element
 	case "/new" :
 		{
-			SendMsgToBot(bot, message, "Create a new element...")
+			BotSendMsg(bot, message, "Create a new element...")
 
 			output = StartContinuousInput(bot, message)
 			break
@@ -104,10 +104,10 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 			b, ok := StorageList(storage)
 			if ok {
-				SendMsgToBot(bot, message, "View an element...")
+				BotSendMsg(bot, message, "View an element...")
 
 				// Print elements list from storage
-				SendMsgToBot(bot, message, b)
+				BotSendMsg(bot, message, b)
 
 				output = StartContinuousInput(bot, message)
 			} else {
@@ -129,10 +129,10 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 			b, ok := StorageList(storage)
 			if ok {
-				SendMsgToBot(bot, message, "Remove an element...")
+				BotSendMsg(bot, message, "Remove an element...")
 
 				// Print elements list from storage
-				SendMsgToBot(bot, message, b)
+				BotSendMsg(bot, message, b)
 
 				output = StartContinuousInput(bot, message)
 			} else {
@@ -148,7 +148,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	// Print the current user's ID
 	case "/whoami" :
 		{
-			SendMsgToBot(bot, message, strconv.Itoa(userID))
+			BotSendMsg(bot, message, strconv.Itoa(userID))
 			break
 		}
 
