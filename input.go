@@ -1,25 +1,33 @@
 package main
 
 import (
-	"gopkg.in/telegram-bot-api.v4"
-	"github.com/nu7hatch/gouuid"
-	"strconv"
 	"crypto/sha256"
+	"github.com/nu7hatch/gouuid"
+	"gopkg.in/telegram-bot-api.v4"
+	"log"
+	"strconv"
 )
 
 /**
- *
+ *  Send message to the Bot and handle an error (in case of)
+ */
+func SendMsgToBot(bot *tgbotapi.BotAPI, message *tgbotapi.Message, text string) {
+	if _, err := bot.Send(tgbotapi.NewMessage(message.Chat.ID, text)); err != nil {
+		log.Println(err)
+	}
+}
+
+/**
  *	Root input processing
- *
  */
 
 func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	var (
-		userID        int = message.From.ID
+		userID        = message.From.ID
 		storage       []Storage
-		storageName   string = strconv.Itoa(userID) + "." + config.Extension
+		storageName   = strconv.Itoa(userID) + "." + config.Extension
 		output        Output
-		hash          [32]byte = sha256.Sum256([]byte(masters[userID]))
+		hash          = sha256.Sum256([]byte(masters[userID]))
 	)
 
 	// `whoami` command is always available
@@ -27,8 +35,8 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 		// If Bot lock is set up in config -- check the match
 		if len(config.Lock) > 0 {
-			if ok,_ := ValueInArray(strconv.Itoa(userID), config.Lock); !ok {
-				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "This Bot is locked for private use only."))
+			if ok, _ := ValueInArray(strconv.Itoa(userID), config.Lock); !ok {
+				SendMsgToBot(bot, message, "This Bot is locked for private use only.")
 
 				return
 			}
@@ -40,13 +48,14 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			// If the storage does not exist, user should use `/start` command
 			if !FileExists(storageName) {
 				delete(masters, userID)
-				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Storage not found. Please, use /start command to set up Bot."))
+
+				SendMsgToBot(bot, message, "Storage not found. Please, use /start command to set up Bot.")
 
 				return
 			}
 
 			// If `masters[]` for the user is not defined, do `/start`
-			if _,me := masters[userID]; !me {
+			if _, me := masters[userID]; !me {
 				message.Text = "/start"
 			}
 		}
@@ -65,20 +74,25 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			} else {
 				output = StartContinuousInput(bot, message)
 			}
+			break
 		}
 
 	// Drop the storage
 	case "/drop" :
 		{
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Drop the storage..."))
+			SendMsgToBot(bot, message, "Drop the storage...")
+
 			output = StartContinuousInput(bot, message)
+			break
 		}
 
 	// Create a new element
 	case "/new" :
 		{
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Create a new element..."))
+			SendMsgToBot(bot, message, "Create a new element...")
+
 			output = StartContinuousInput(bot, message)
+			break
 		}
 
 	// View an element
@@ -90,10 +104,10 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 			b, ok := StorageList(storage)
 			if ok {
-				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "View an element..."))
+				SendMsgToBot(bot, message, "View an element...")
 
 				// Print elements list from storage
-				bot.Send(tgbotapi.NewMessage(message.Chat.ID, b))
+				SendMsgToBot(bot, message, b)
 
 				output = StartContinuousInput(bot, message)
 			} else {
@@ -103,6 +117,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 				StopContinuousInput(message)
 			}
+			break
 		}
 
 	// Remove an element
@@ -114,10 +129,10 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 			b, ok := StorageList(storage)
 			if ok {
-				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Remove an element..."))
+				SendMsgToBot(bot, message, "Remove an element...")
 
 				// Print elements list from storage
-				bot.Send(tgbotapi.NewMessage(message.Chat.ID, b))
+				SendMsgToBot(bot, message, b)
 
 				output = StartContinuousInput(bot, message)
 			} else {
@@ -127,11 +142,14 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 				StopContinuousInput(message)
 			}
+			break
 		}
 
+	// Print the current user's ID
 	case "/whoami" :
 		{
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, strconv.Itoa(userID)))
+			SendMsgToBot(bot, message, strconv.Itoa(userID))
+			break
 		}
 
 	// Cancel current input process
@@ -140,6 +158,7 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			output.Response = "Canceled."
 
 			StopContinuousInput(message)
+			break
 		}
 
 	// Other
@@ -152,8 +171,8 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 				StopContinuousInput(message)
 			}
+			break
 		}
-
 	}
 
 	SendResponseMessage(bot, message, output)
@@ -167,11 +186,11 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 
 func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) Output {
 	var (
-		userID        int = message.From.ID
+		userID        = message.From.ID
 		storage       []Storage
-		storageName   string = strconv.Itoa(userID) + "." + config.Extension
+		storageName   = strconv.Itoa(userID) + "." + config.Extension
 		output        Output
-		hash          [32]byte = sha256.Sum256([]byte(masters[userID]))
+		hash          = sha256.Sum256([]byte(masters[userID]))
 	)
 
 	bc := current[userID]
@@ -196,12 +215,16 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 							"Since one's credentials is a sensitive data, please, consider this Bot as the engine demo, " +
 							"and <strong>DO NOT STORE</strong> anything private in it.")
 						inline.ParseMode = "HTML"
-						bot.Send(inline)
+
+						if _, err := bot.Send(inline); err != nil {
+							log.Println(err)
+						}
 
 						output.Response = "Please, enter the master password for the storage:"
 					} else {
 						output.Response = "Master password:"
 					}
+					break
 				}
 			case 2 :
 				{
@@ -243,7 +266,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 						buffer := GetStorage(f, hash)
 
 						if len(buffer) > 0 {
-							if c,_ := strconv.Atoi(buffer[0].ID); c == userID {
+							if c, _ := strconv.Atoi(buffer[0].ID); c == userID {
 								storage = buffer
 								output.Response = "Master password accepted."
 							} else {
@@ -257,8 +280,10 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					}
 
 					StopContinuousInput(message)
+					break
 				}
 			}
+			break
 		}
 
 	// Drop the storage (continuous)
@@ -270,6 +295,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Are you sure you want to drop the storage? This action cannot be undone. [Y/n]"
+					break
 				}
 			case 2 :
 				{
@@ -282,8 +308,10 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					}
 
 					StopContinuousInput(message)
+					break
 				}
 			}
+			break
 		}
 
 	// Create a new element (continuous)
@@ -300,6 +328,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Title:"
+					break
 				}
 			case 2 :
 				{
@@ -309,6 +338,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Login:"
+					break
 				}
 			case 3 :
 				{
@@ -318,6 +348,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Password:"
+					break
 				}
 			case 4 :
 				{
@@ -327,6 +358,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Url:"
+					break
 				}
 			case 5 :
 				{
@@ -346,8 +378,10 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					}
 
 					StopContinuousInput(message)
+					break
 				}
 			}
+			break
 		}
 
 	// View an element (continuous)
@@ -359,6 +393,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Element #:"
+					break
 				}
 			case 2 :
 				{
@@ -375,7 +410,10 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 						// Print the element info
 						inline := tgbotapi.NewMessage(message.Chat.ID, b)
 						inline.ParseMode = "HTML"
-						bot.Send(inline)
+
+						if _, err := bot.Send(inline); err != nil {
+							log.Println(err)
+						}
 
 						// Print password in a separate message
 						output.Response = "<code>" + p + "</code>"
@@ -386,8 +424,10 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					}
 
 					StopContinuousInput(message)
+					break
 				}
 			}
+			break
 		}
 
 	// Remove an element (continuous)
@@ -399,6 +439,7 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					bc.Step++
 					current[userID] = bc
 					output.Response = "Element #:"
+					break
 				}
 			case 2 :
 				{
@@ -423,10 +464,11 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 					}
 
 					StopContinuousInput(message)
+					break
 				}
 			}
+			break
 		}
-
 	}
 
 	return output

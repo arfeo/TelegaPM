@@ -2,6 +2,7 @@ package main
 
 import (
 	"gopkg.in/telegram-bot-api.v4"
+	"log"
 )
 
 /**
@@ -62,5 +63,7 @@ func SendResponseMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message, output
 	m.DisableWebPagePreview = true
 
 	// Send message to Bot
-	bot.Send(m)
+	if _, err := bot.Send(m); err != nil {
+		log.Println(err)
+	}
 }

@@ -1,10 +1,9 @@
 package main
 
 import (
-	"os"
-	"log"
-	"io"
 	"io/ioutil"
+	"log"
+	"os"
 )
 
 /**
@@ -85,44 +84,6 @@ func ReadFromFile(name string) ([]byte, bool) {
 
 func WriteToFile(name string, data []byte) bool {
 	err := ioutil.WriteFile(name, data, 0644)
-
-	if err != nil {
-		log.Println(err)
-
-		return false
-	}
-
-	return true
-}
-
-/**
- *
- *	Create a copy of a file
- *
- */
-
-func CopyFile(src string, dest string) bool {
-	from, err := os.Open(src)
-
-	if err != nil {
-		log.Println(err)
-
-		return false
-	}
-
-	defer from.Close()
-
-	to, err := os.OpenFile(dest, os.O_RDWR | os.O_CREATE, 0644)
-
-	if err != nil {
-		log.Println(err)
-
-		return false
-	}
-
-	defer to.Close()
-
-	_, err = io.Copy(to, from)
 
 	if err != nil {
 		log.Println(err)
