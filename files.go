@@ -7,11 +7,9 @@ import (
 )
 
 /**
- *
- *	Check whether a file or directory exists
- *
+ * Function checks whether a file or directory with the given name exists and handles error (if any);
+ * returns true if file/directory exists, otherwise returns false
  */
-
 func FileExists(name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
@@ -23,11 +21,9 @@ func FileExists(name string) bool {
 }
 
 /**
- *
- *	Create a new file or directory
- *
+ * Function creates a new file or directory with the given name and handles error (if any);
+ * returns true if the file successfully created, otherwise returns false
  */
-
 func CreateFile(name string) bool {
 	_, err := os.Create(name)
 
@@ -41,11 +37,9 @@ func CreateFile(name string) bool {
 }
 
 /**
- *
- *	Remove a file
- *
+ * Function tries to remove a file with the given name and handles error (if any);
+ * returns true if the file deleted, otherwise returns false
  */
-
 func RemoveFile(name string) bool {
 	err := os.Remove(name)
 
@@ -59,11 +53,10 @@ func RemoveFile(name string) bool {
 }
 
 /**
- *
- *	Read data from a file
- *
+ * Function tries to read data from a file with the given name and handles error (if any);
+ * returns data as the first value and true as the second one in case of success,
+ * otherwise returns nil as the first value and false as the second one
  */
-
 func ReadFromFile(name string) ([]byte, bool) {
 	file, err := ioutil.ReadFile(name)
 
@@ -77,11 +70,9 @@ func ReadFromFile(name string) ([]byte, bool) {
 }
 
 /**
- *
- *	Write data to a file
- *
+ * Function tries to write given data to a file with the given name and handles error (if any);
+ * returns true if data was written to the file, otherwise returns false
  */
-
 func WriteToFile(name string, data []byte) bool {
 	err := ioutil.WriteFile(name, data, 0644)
 

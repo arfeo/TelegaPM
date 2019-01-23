@@ -10,11 +10,8 @@ import (
 )
 
 /**
- *
- *	Encrypt with specified key (32 bytes)
- *
+ * Encrypt with specified key (32 bytes)
  */
-
 func Encrypt(key, text []byte) []byte {
 	block, err := aes.NewCipher(key)
 
@@ -37,11 +34,8 @@ func Encrypt(key, text []byte) []byte {
 }
 
 /**
- *
- *	Decrypt with specified key (32 bytes)
- *
+ * Decrypt with specified key (32 bytes)
  */
-
 func Decrypt(key, text []byte) string {
 	block, err := aes.NewCipher(key)
 
@@ -62,21 +56,15 @@ func Decrypt(key, text []byte) string {
 }
 
 /**
- *
- *	Base 64 encode
- *
+ * Base 64 encode
  */
-
 func EncodeBase64(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
 /**
- *
- *	Base 64 decode
- *
+ * Base 64 decode
  */
-
 func DecodeBase64(s string) []byte {
 	data, err := base64.StdEncoding.DecodeString(s)
 

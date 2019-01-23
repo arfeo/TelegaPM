@@ -6,11 +6,8 @@ import (
 )
 
 /**
- *
- *	Configure and send a new response message to the user
- *
+ * Function configures and sends a new response message to the user
  */
-
 func SendResponseMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message, output Output) {
 	userID := message.From.ID
 
@@ -64,6 +61,15 @@ func SendResponseMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message, output
 
 	// Send message to Bot
 	if _, err := bot.Send(m); err != nil {
+		log.Println(err)
+	}
+}
+
+/**
+ * Function sends a plain text string to the user
+ */
+func BotSendMsg(bot *tgbotapi.BotAPI, message *tgbotapi.Message, text string) {
+	if _, err := bot.Send(tgbotapi.NewMessage(message.Chat.ID, text)); err != nil {
 		log.Println(err)
 	}
 }

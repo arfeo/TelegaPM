@@ -7,11 +7,9 @@ import (
 )
 
 /**
- *
- *	Get storage data from encrypted content
- *
+ * Function tries to get storage data from encrypted content with the given hash;
+ * returns storage date in case of success, otherwise returns void
  */
-
 func GetStorage(data []byte, hash [32]byte) (storage []Storage) {
 	if len(data) > 0 {
 		decr := Decrypt(hash[:], data)
@@ -26,11 +24,9 @@ func GetStorage(data []byte, hash [32]byte) (storage []Storage) {
 }
 
 /**
- *
- *	Push a new element to storage
- *
+ * Function pushes a new element to storage with the given hash;
+ * returns encrypted storage data
  */
-
 func PushToStorage(storage []Storage, current Current, hash [32]byte) []byte {
 	storage = append(storage, current.Entry)
 	j, err := json.Marshal(storage)
@@ -43,11 +39,10 @@ func PushToStorage(storage []Storage, current Current, hash [32]byte) []byte {
 }
 
 /**
- *
- *	Get elements list from storage
- *
+ * Function tries to get elements list from storage;
+ * returns the list as the first value and true as the second one if the list is not empty;
+ * returns the corresponding message as the first value and false as the second one if the list is empty
  */
-
 func StorageList(storage []Storage) (string, bool) {
 	result := ""
 
@@ -63,11 +58,10 @@ func StorageList(storage []Storage) (string, bool) {
 }
 
 /**
- *
- *	Get element info
- *
+ * Function tries to get an element info from storage by the given element number;
+ * returns element's info as the first value, password as the second value, and true as the third one if element exists;
+ * returns the corresponding message as the first value, empty string as the second value, and false if element not found
  */
-
 func GetStorageElementInfo(storage []Storage, num int) (string, string, bool) {
 	result := ""
 
@@ -81,11 +75,10 @@ func GetStorageElementInfo(storage []Storage, num int) (string, string, bool) {
 }
 
 /**
- *
- *	Remove an element from storage
- *
+ * Function tries to remove an element from storage by the given number with the given hash;
+ * returns encrypted storage date  as the first value and true as the second one in case of success;
+ * otherwise returns empty string as the first value and false as the second one
  */
-
 func RemoveElementFromStorage(storage []Storage, num int, hash [32]byte) ([]byte, bool) {
 	if num > 0 && num <= len(storage) {
 		storage = append(storage[:num], storage[num+1:]...)

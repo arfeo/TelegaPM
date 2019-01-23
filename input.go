@@ -9,18 +9,8 @@ import (
 )
 
 /**
- *  Send message from the Bot and handle an error (in case of)
+ * Function processes root level input
  */
-func BotSendMsg(bot *tgbotapi.BotAPI, message *tgbotapi.Message, text string) {
-	if _, err := bot.Send(tgbotapi.NewMessage(message.Chat.ID, text)); err != nil {
-		log.Println(err)
-	}
-}
-
-/**
- *	Root input processing
- */
-
 func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	var (
 		userID        = message.From.ID
@@ -179,11 +169,8 @@ func RootInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 }
 
 /**
- *
- *	Continuous input processing
- *
+ * Function processes continuous input
  */
-
 func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) Output {
 	var (
 		userID        = message.From.ID
@@ -475,11 +462,8 @@ func ContinuousInputProcessing(bot *tgbotapi.BotAPI, message *tgbotapi.Message) 
 }
 
 /**
- *
- *	Set current fields to start continuous input
- *
+ * Function sets current fields to start continuous input
  */
-
 func StartContinuousInput(bot *tgbotapi.BotAPI, message *tgbotapi.Message) Output {
 	b := current[message.From.ID]
 	b = Current{
@@ -495,11 +479,8 @@ func StartContinuousInput(bot *tgbotapi.BotAPI, message *tgbotapi.Message) Outpu
 }
 
 /**
- *
- *	Reset current fields to stop continuous input
- *
+ * Function resets current fields to stop continuous input
  */
-
 func StopContinuousInput(message *tgbotapi.Message) {
 	b := current[message.From.ID]
 	b = Current{
